@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Log</title>
+<style>
+  body{margin:0;background:#17181a;}
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#17181a;
+    --panel:#1f2023;
+    --panel-2:#26272b;
+    --border:#3a3b3f;
+    --text:#ece9e2;
+    --muted:#9a9a95;
+    --brass:#c9a227;
+    --brass-dim:#8f7420;
+    --steel:#7c8a99;
+    --iron:#9a4a3d;
+    --good:#5f8f6e;
+    font-family:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  #tl-root{
+    background:var(--bg);
+    color:var(--text);
+    min-height:100%;
+    padding:18px 14px 60px;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .tl-h{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .tl-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    border-bottom:2px solid var(--brass);
+    padding-bottom:10px;
+    margin-bottom:16px;
+  }
+  .tl-title{font-size:22px;color:var(--text);}
+  .tl-sub{font-size:12px;color:var(--muted);margin-top:2px;font-family:'Inter';}
+
+  .tl-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:14px;
+    margin-bottom:14px;
+  }
+
+  .tl-week-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .tl-week-btn{
+    width:34px;height:34px;
+    border-radius:3px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    font-size:18px;
+    font-family:'Oswald';
+    cursor:pointer;
+    line-height:1;
+  }
+  .tl-week-btn:active{background:var(--brass-dim);}
+  .tl-week-num{
+    font-family:'Oswald';
+    font-size:26px;
+    min-width:120px;
+    text-align:center;
+  }
+  .tl-week-num span{color:var(--brass);}
+  .tl-phase{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .tl-phase b{color:var(--text);font-weight:600;}
+  .tl-heavy-tag{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 6px;
+    font-size:11px;
+    border-radius:2px;
+    background:var(--iron);
+    color:#f0e6e2;
+  }
+
+  .tl-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tl-tab{
+    flex:1;
+    text-align:center;
+    padding:10px 6px;
+    border-radius:4px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--muted);
+    cursor:pointer;
+    font-family:'Oswald';
+    font-size:14px;
+  }
+  .tl-tab.active{
+    border-color:var(--brass);
+    color:var(--text);
+    background:var(--panel-2);
+  }
+
+  .tl-date-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .tl-date-row input[type=date]{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:3px;
+    padding:6px 8px;
+    font-family:'Inter';
+    font-size:14px;
+  }
+  .tl-daylabel{font-family:'Oswald';font-size:16px;}
+
+  .tl-exercise{
+    border-top:1px solid var(--border);
+    padding-top:12px;
+    margin-top:12px;
+  }
+  .tl-exercise:first-child{border-top:none;margin-top:0;padding-top:0;}
+  .tl-ex-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .tl-ex-name{font-family:'Oswald';font-size:16px;}
+  .tl-ex-namewrap{display:flex;align-items:center;gap:6px;}
+  .tl-ex-select{
+    font-family:'Oswald';
+    font-size:15px;
+    background:var(--panel);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:3px;
+    padding:4px 6px;
+    max-width:200px;
+  }
+  .tl-custom-name{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:3px;
+    padding:8px;
+    font-size:14px;
+    font-family:'Inter';
+    margin-bottom:8px;
+  }
+  .tl-ex-target{font-size:12px;color:var(--muted);}
+  .tl-badge{
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:2px;
+    border:1px solid var(--border);
+    color:var(--steel);
+    margin-left:6px;
+  }
+  .tl-set-row{
+    display:grid;
+    grid-template-columns:28px 1fr 1fr;
+    gap:8px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .tl-set-row span{color:var(--muted);font-size:13px;}
+  .tl-set-row input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:3px;
+    padding:8px;
+    font-size:15px;
+    width:100%;
+  }
+  .tl-addset{
+    background:none;
+    border:1px dashed var(--border);
+    color:var(--muted);
+    border-radius:3px;
+    padding:6px 10px;
+    font-size:12px;
+    cursor:pointer;
+    margin-top:2px;
+  }
+
+  .tl-cond-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .tl-field label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .tl-field input, .tl-field select, .tl-field textarea{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:3px;
+    padding:8px;
+    font-size:14px;
+    font-family:'Inter';
+  }
+  .tl-note{margin-top:12px;}
+  .tl-note textarea{min-height:50px;resize:vertical;}
+
+  .tl-save{
+    width:100%;
+    background:var(--brass);
+    color:#1a1600;
+    border:none;
+    border-radius:4px;
+    padding:13px;
+    font-family:'Oswald';
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    margin-top:14px;
+  }
+  .tl-save:active{background:var(--brass-dim);}
+
+  .tl-toast{
+    position:fixed;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--good);
+    color:#0d1a10;
+    padding:10px 18px;
+    border-radius:4px;
+    font-size:14px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s;
+    z-index:50;
+  }
+  .tl-toast.show{opacity:1;}
+
+  .tl-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .tl-stat{text-align:center;}
+  .tl-stat-num{font-family:'Oswald';font-size:24px;color:var(--brass);}
+  .tl-stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+  .tl-stat-note{
+    grid-column:1/-1;
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:8px;
+    border-top:1px solid var(--border);
+    padding-top:8px;
+  }
+
+  .tl-chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .tl-chart-head select{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:3px;
+    padding:6px 8px;
+    font-family:'Inter';
+    font-size:13px;
+  }
+  .tl-empty{
+    color:var(--muted);
+    font-size:13px;
+    text-align:center;
+    padding:20px 0;
+  }
+
+  .tl-history-item{
+    border:1px solid var(--border);
+    border-radius:4px;
+    margin-bottom:8px;
+    overflow:hidden;
+  }
+  .tl-history-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 12px;
+    cursor:pointer;
+    background:var(--panel-2);
+  }
+  .tl-history-head .l{font-family:'Oswald';font-size:14px;}
+  .tl-history-head .r{font-size:11px;color:var(--muted);}
+  .tl-history-body{
+    padding:10px 12px;
+    font-size:13px;
+    display:none;
+  }
+  .tl-history-body.open{display:block;}
+  .tl-history-ex{margin-bottom:8px;}
+  .tl-history-ex b{font-family:'Oswald';font-weight:500;}
+  .tl-history-sets{color:var(--muted);margin-top:2px;}
+  .tl-pr{color:var(--brass);font-weight:600;}
+  .tl-del{
+    display:inline-block;
+    margin-top:6px;
+    font-size:11px;
+    color:var(--iron);
+    cursor:pointer;
+    border:none;
+    background:none;
+    padding:0;
+  }
+
+  .tl-reset{
+    text-align:center;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:20px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+
+<div id="tl-root">
+  <div class="tl-header">
+    <div>
+      <div class="tl-h tl-title">Training Log</div>
+      <div class="tl-sub">strength rebuild — 12 weeks</div>
+    </div>
+  </div>
+
+  <div class="tl-panel">
+    <div class="tl-week-row">
+      <button class="tl-week-btn" id="tl-week-down">−</button>
+      <div class="tl-week-num">Week <span id="tl-week-display">1</span> / 12</div>
+      <button class="tl-week-btn" id="tl-week-up">+</button>
+    </div>
+    <div class="tl-phase" id="tl-phase-text"></div>
+  </div>
+
+  <div class="tl-tabs" id="tl-tabs"></div>
+
+  <div class="tl-panel" id="tl-form-panel"></div>
+
+  <button class="tl-save" id="tl-save-btn">Save session</button>
+
+  <div class="tl-panel" style="margin-top:20px;">
+    <div class="tl-h" style="font-size:15px;margin-bottom:10px;">This week</div>
+    <div class="tl-stats" id="tl-stats"></div>
+  </div>
+
+  <div class="tl-panel">
+    <div class="tl-chart-head">
+      <div class="tl-h" style="font-size:15px;">Progress</div>
+      <select id="tl-chart-select">
+        <option value="squat">Back Squat</option>
+        <option value="bench">Bench Press</option>
+        <option value="deadlift">Deadlift / RDL</option>
+        <option value="ohp">Overhead Press</option>
+      </select>
+    </div>
+    <div id="tl-chart-wrap"></div>
+  </div>
+
+  <div class="tl-h" style="font-size:15px;margin:18px 0 10px;">History</div>
+  <div id="tl-history"></div>
+
+  <div class="tl-reset" id="tl-reset">Clear all logged data</div>
+</div>
+
+<div class="tl-toast" id="tl-toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'training-log-entries';
+
+  const DAY_TEMPLATES = {
+    A: {
+      label: 'Day A — Squat / Push',
+      exercises: [
+        { id:'squat', name:'Back Squat', kind:'main', rows:3, variants:['Back Squat','Front Squat','Leg Press'] },
+        { id:'bench', name:'Bench Press', kind:'main', rows:3, variants:['Bench Press','Incline Dumbbell Press','Push-up (weighted)'] },
+        { id:'row', name:'Row (cable or bent-over)', kind:'accessory', rows:3, variants:['Seated Cable Row','Bent-Over Row','Chest-Supported Row'] },
+        { id:'crunches', name:'Crunches', kind:'core', rows:3, timed:false, repLabel:'total reps', variants:['Crunches','Sit-ups','Cable Crunch'] }
+      ]
+    },
+    B: {
+      label: 'Day B — Hinge / Pull',
+      exercises: [
+        { id:'deadlift', name:'Deadlift / RDL', kind:'main', rows:3, variants:['Deadlift','Romanian Deadlift','Trap Bar Deadlift'] },
+        { id:'ohp', name:'Overhead Press', kind:'main', rows:3, variants:['Standing Overhead Press','Seated Dumbbell Press','Arnold Press'] },
+        { id:'pullup', name:'Pull-up / Lat Pulldown', kind:'accessory', rows:3, variants:['Pull-up','Lat Pulldown','Assisted Pull-up'] },
+        { id:'core', name:'Core (dead bug / knee raise)', kind:'core', rows:3, timed:false, variants:['Dead Bug','Hanging Knee Raise','Cable Crunch'] }
+      ]
+    },
+    C: { label:'Conditioning Day', conditioning:true }
+  };
+
+  const MAIN_LIFT_NAMES = { squat:'Back Squat', bench:'Bench Press', deadlift:'Deadlift / RDL', ohp:'Overhead Press' };
+
+  function getPhase(week){
+    if(week<=2) return {n:1,label:'Reintroduction',main:'3 × 10',accessory:'3 × 10',core:'3 × 30s',heavy:false};
+    if(week<=8) return {n:2,label:'Strength Building',main:'4 × 6–8',accessory:'3 × 8–10',core:'3 × 45s',heavy:false};
+    const heavy = (week % 2 === 1);
+    return heavy
+      ? {n:3,label:'Refinement — heavy week',main:'3–4 × 3–4',accessory:'3 × 8–10',core:'3 × 45s',heavy:true}
+      : {n:3,label:'Refinement — volume week',main:'4 × 6–8',accessory:'3 × 8–10',core:'3 × 45s',heavy:false};
+  }
+
+  function todayStr(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function mondayOf(dateStr){
+    const d = new Date(dateStr + 'T00:00:00');
+    const dow = d.getDay(); // 0 sun .. 6 sat
+    const diff = (dow === 0 ? -6 : 1 - dow);
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  let state = {
+    week: 1,
+    activeDay: 'A',
+    entries: [],
+    loaded: false,
+    chartLift: 'squat'
+  };
+
+  const root = document.getElementById('tl-root');
+
+  function toast(msg){
+    const t = document.getElementById('tl-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  async function loadEntries(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      state.entries = raw ? JSON.parse(raw) : [];
+    }catch(err){
+      state.entries = [];
+    }
+    state.loaded = true;
+  }
+
+  async function persistEntries(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
+    }catch(err){
+      toast('Save failed — try again');
+    }
+  }
+
+  // ---------- Tabs ----------
+  function renderTabs(){
+    const el = document.getElementById('tl-tabs');
+    el.innerHTML = '';
+    ['A','B','C'].forEach(d=>{
+      const btn = document.createElement('div');
+      btn.className = 'tl-tab' + (state.activeDay===d ? ' active':'');
+      btn.textContent = d==='C' ? 'Conditioning' : 'Day ' + d;
+      btn.onclick = ()=>{ state.activeDay = d; renderTabs(); renderForm(); };
+      el.appendChild(btn);
+    });
+  }
+
+  // ---------- Form ----------
+  function renderForm(){
+    const panel = document.getElementById('tl-form-panel');
+    const tmpl = DAY_TEMPLATES[state.activeDay];
+    const phase = getPhase(state.week);
+
+    let html = `<div class="tl-date-row">
+      <div class="tl-daylabel">${tmpl.label}</div>
+      <input type="date" id="tl-date-input" value="${todayStr()}">
+    </div>`;
+
+    if(tmpl.conditioning){
+      html += `
+        <div class="tl-cond-grid">
+          <div class="tl-field">
+            <label>Type</label>
+            <select id="tl-cond-type">
+              <option>Bike</option>
+              <option>Run</option>
+              <option>Walk</option>
+              <option>Rower</option>
+              <option>Incline walk</option>
+              <option>Circuit</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="tl-field">
+            <label>Minutes</label>
+            <input type="number" id="tl-cond-min" placeholder="20">
+          </div>
+        </div>
+        <div class="tl-field" style="margin-top:10px;">
+          <label>Effort (1–10)</label>
+          <input type="number" id="tl-cond-effort" min="1" max="10" placeholder="6">
+        </div>
+        <div class="tl-field" style="margin-top:10px;">
+          <label>Core work</label>
+          <input type="text" id="tl-cond-core" placeholder="e.g. Plank 3x45s, dead bugs 3x10">
+        </div>
+      `;
+    } else {
+      tmpl.exercises.forEach(ex=>{
+        const target = ex.kind==='main' ? phase.main : ex.kind==='accessory' ? phase.accessory : phase.core;
+        html += `<div class="tl-exercise" data-exid="${ex.id}" data-timed="${!!ex.timed}" data-replabel="${ex.repLabel || ''}">
+          <div class="tl-ex-head">
+            <div class="tl-ex-namewrap">
+              <select class="tl-ex-select" data-exid="${ex.id}">
+                ${(ex.variants||[ex.name]).map((v,i)=>`<option value="${v}">${v}</option>`).join('')}
+                <option value="__custom__">Other (type your own)</option>
+              </select>
+              <span class="tl-badge">${ex.kind}</span>
+            </div>
+            <div class="tl-ex-target">target ${target}${phase.heavy && ex.kind==='main' ? '<span class="tl-heavy-tag">heavy</span>':''}</div>
+          </div>
+          <input type="text" class="tl-custom-name" data-exid="${ex.id}" placeholder="Type the exercise name" style="display:none;">
+          <div class="tl-sets-wrap">
+            ${Array.from({length:ex.rows}).map((_,i)=>setRowHtml(i, ex.timed, ex.repLabel)).join('')}
+          </div>
+          <button class="tl-addset" data-add="${ex.id}">+ add set</button>
+        </div>`;
+      });
+      html += `<div class="tl-note tl-field">
+        <label>How'd it feel? (optional)</label>
+        <textarea id="tl-note"></textarea>
+      </div>`;
+    }
+
+    panel.innerHTML = html;
+
+    if(!tmpl.conditioning){
+      panel.querySelectorAll('[data-add]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const exId = btn.getAttribute('data-add');
+          const container = panel.querySelector(`.tl-exercise[data-exid="${exId}"]`);
+          const wrap = container.querySelector('.tl-sets-wrap');
+          const timed = container.dataset.timed === 'true';
+          const label = container.dataset.replabel;
+          const idx = wrap.children.length;
+          wrap.insertAdjacentHTML('beforeend', setRowHtml(idx, timed, label));
+        });
+      });
+      panel.querySelectorAll('.tl-ex-select').forEach(sel=>{
+        sel.addEventListener('change', ()=>{
+          const exId = sel.getAttribute('data-exid');
+          const custom = panel.querySelector(`.tl-custom-name[data-exid="${exId}"]`);
+          if(sel.value === '__custom__'){
+            custom.style.display = 'block';
+            custom.focus();
+          } else {
+            custom.style.display = 'none';
+          }
+        });
+      });
+    }
+  }
+
+  function setRowHtml(i, timed, label){
+    const secondCol = timed
+      ? `<input type="number" placeholder="sec" data-field="seconds">`
+      : `<input type="number" placeholder="${label || 'reps'}" data-field="reps">`;
+    return `<div class="tl-set-row">
+      <span>${i+1}</span>
+      <input type="number" placeholder="lbs" data-field="weight">
+      ${secondCol}
+    </div>`;
+  }
+
+  // ---------- Save ----------
+  async function saveSession(){
+    const panel = document.getElementById('tl-form-panel');
+    const tmpl = DAY_TEMPLATES[state.activeDay];
+    const date = document.getElementById('tl-date-input').value || todayStr();
+    const phase = getPhase(state.week);
+
+    let entry = {
+      id: Date.now().toString(36),
+      date, week: state.week, day: state.activeDay,
+      phaseLabel: phase.label
+    };
+
+    if(tmpl.conditioning){
+      entry.conditioning = {
+        type: document.getElementById('tl-cond-type').value,
+        minutes: document.getElementById('tl-cond-min').value,
+        effort: document.getElementById('tl-cond-effort').value,
+        core: document.getElementById('tl-cond-core').value
+      };
+      const c = entry.conditioning;
+      if(!c.minutes && !c.core){
+        toast('Log at least a duration or core work');
+        return;
+      }
+    } else {
+      entry.exercises = [];
+      let anyData = false;
+      panel.querySelectorAll('.tl-exercise').forEach(exEl=>{
+        const exId = exEl.dataset.exid;
+        const timed = exEl.dataset.timed === 'true';
+        const sel = exEl.querySelector('.tl-ex-select');
+        const customInput = exEl.querySelector('.tl-custom-name');
+        let name = sel.value === '__custom__' ? (customInput.value.trim() || tmpl.exercises.find(e=>e.id===exId).name) : sel.value;
+        const sets = [];
+        exEl.querySelectorAll('.tl-set-row').forEach(row=>{
+          const weight = row.querySelector('[data-field="weight"]').value;
+          const other = row.querySelector('[data-field="reps"], [data-field="seconds"]').value;
+          if(weight || other){
+            anyData = true;
+            sets.push(timed ? {weight:Number(weight)||0, seconds:Number(other)||0}
+                             : {weight:Number(weight)||0, reps:Number(other)||0});
+          }
+        });
+        entry.exercises.push({id:exId, name, timed, sets});
+      });
+      entry.note = document.getElementById('tl-note').value;
+      if(!anyData){
+        toast('Log at least one set before saving');
+        return;
+      }
+    }
+
+    // PR check for main lifts
+    let prHit = false;
+    if(entry.exercises){
+      entry.exercises.forEach(ex=>{
+        if(MAIN_LIFT_NAMES[ex.id] && ex.sets.length){
+          const top = Math.max(...ex.sets.map(s=>s.weight||0));
+          const priorMax = maxWeightForLift(ex.id, entry.date);
+          if(top > 0 && top > priorMax) prHit = true;
+        }
+      });
+    }
+
+    state.entries.push(entry);
+    await persistEntries();
+    toast(prHit ? 'Session saved — new PR!' : 'Session saved');
+    renderForm();
+    renderStats();
+    renderChart();
+    renderHistory();
+  }
+
+  function maxWeightForLift(liftId, beforeDate){
+    let max = 0;
+    state.entries.forEach(e=>{
+      if(e.date >= beforeDate) return;
+      (e.exercises||[]).forEach(ex=>{
+        if(ex.id===liftId){
+          ex.sets.forEach(s=>{ if(s.weight>max) max=s.weight; });
+        }
+      });
+    });
+    return max;
+  }
+
+  // ---------- Stats ----------
+  function renderStats(){
+    const el = document.getElementById('tl-stats');
+    const monday = mondayOf(todayStr());
+    const mondayStr = monday.toISOString().slice(0,10);
+    const thisWeek = state.entries.filter(e => e.date >= mondayStr).length;
+    const total = state.entries.length;
+    const last = state.entries.length ? state.entries.map(e=>e.date).sort().slice(-1)[0] : '—';
+
+    let note;
+    if(thisWeek === 0) note = "No sessions logged this week yet.";
+    else if(thisWeek < 3) note = `${3 - thisWeek} more to hit this week's target of 3–4.`;
+    else if(thisWeek <= 4) note = "Target hit for the week — nice work.";
+    else note = "Above target — make sure you're recovering.";
+
+    el.innerHTML = `
+      <div class="tl-stat"><div class="tl-stat-num">${thisWeek}</div><div class="tl-stat-label">this week</div></div>
+      <div class="tl-stat"><div class="tl-stat-num">${total}</div><div class="tl-stat-label">total logged</div></div>
+      <div class="tl-stat"><div class="tl-stat-num" style="font-size:15px;">${last}</div><div class="tl-stat-label">last session</div></div>
+      <div class="tl-stat-note">${note}</div>
+    `;
+  }
+
+  // ---------- Chart ----------
+  function renderChart(){
+    const wrap = document.getElementById('tl-chart-wrap');
+    const liftId = state.chartLift;
+    const points = [];
+    state.entries.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+      (e.exercises||[]).forEach(ex=>{
+        if(ex.id===liftId && ex.sets.length){
+          const top = Math.max(...ex.sets.map(s=>s.weight||0));
+          if(top>0) points.push({date:e.date, weight:top});
+        }
+      });
+    });
+
+    if(points.length < 2){
+      wrap.innerHTML = `<div class="tl-empty">Log a couple more sessions on ${MAIN_LIFT_NAMES[liftId]} to see your trend.</div>`;
+      return;
+    }
+
+    const W=600,H=150,padL=40,padR=10,padT=10,padB=24;
+    const weights = points.map(p=>p.weight);
+    let min = Math.min(...weights), max = Math.max(...weights);
+    if(min===max){ min -= 10; max += 10; }
+    const xStep = (W-padL-padR) / (points.length-1);
+    const yScale = w => H-padB - ((w-min)/(max-min))*(H-padT-padB);
+
+    const coords = points.map((p,i)=>({x: padL + i*xStep, y: yScale(p.weight)}));
+    const path = coords.map((c,i)=> (i===0?'M':'L') + c.x.toFixed(1) + ',' + c.y.toFixed(1)).join(' ');
+
+    const circles = coords.map((c,i)=>
+      `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="3.5" fill="#c9a227"></circle>`
+    ).join('');
+
+    const firstLabel = points[0].date, lastLabel = points[points.length-1].date;
+
+    wrap.innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
+        <text x="${padL}" y="${padT+8}" fill="#9a9a95" font-size="11" font-family="Inter">${max} lbs</text>
+        <text x="${padL}" y="${H-padB}" fill="#9a9a95" font-size="11" font-family="Inter">${min} lbs</text>
+        <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#3a3b3f" stroke-width="1"/>
+        <path d="${path}" fill="none" stroke="#c9a227" stroke-width="2"/>
+        ${circles}
+        <text x="${padL}" y="${H-4}" fill="#9a9a95" font-size="10" font-family="Inter">${firstLabel}</text>
+        <text x="${W-padR}" y="${H-4}" fill="#9a9a95" font-size="10" font-family="Inter" text-anchor="end">${lastLabel}</text>
+      </svg>
+    `;
+  }
+
+  // ---------- History ----------
+  function renderHistory(){
+    const el = document.getElementById('tl-history');
+    if(!state.entries.length){
+      el.innerHTML = `<div class="tl-empty">No sessions logged yet — save your first one above.</div>`;
+      return;
+    }
+    const sorted = state.entries.slice().sort((a,b)=>b.date.localeCompare(a.date));
+    el.innerHTML = sorted.map(e=>{
+      const dayLabel = e.day==='C' ? 'Conditioning' : 'Day ' + e.day;
+      let body = '';
+      if(e.conditioning){
+        const c = e.conditioning;
+        body = `<div class="tl-history-ex">${c.type || ''} — ${c.minutes || '?'} min, effort ${c.effort || '?'}/10</div>
+                ${c.core ? `<div class="tl-history-sets">Core: ${escapeHtml(c.core)}</div>` : ''}`;
+      } else {
+        body = (e.exercises||[]).filter(ex=>ex.sets.length).map(ex=>{
+          const top = Math.max(...ex.sets.map(s=>s.weight||0));
+          const priorMax = maxWeightForLift(ex.id, e.date);
+          const isPR = MAIN_LIFT_NAMES[ex.id] && top>0 && top>priorMax;
+          const anyWeight = ex.sets.some(s=>s.weight);
+          let setsStr;
+          if(ex.timed){
+            setsStr = ex.sets.map(s=> `${s.weight?s.weight+'lb x ':''}${s.seconds}s`).join(', ');
+          } else if(!anyWeight){
+            const total = ex.sets.reduce((a,s)=>a+(s.reps||0),0);
+            setsStr = ex.sets.map(s=>s.reps).join(' + ') + ` = ${total} total reps`;
+          } else {
+            setsStr = ex.sets.map(s=>`${s.weight}lb x ${s.reps}`).join(', ');
+          }
+          return `<div class="tl-history-ex"><b>${ex.name}</b>${isPR?' <span class="tl-pr">PR</span>':''}
+            <div class="tl-history-sets">${setsStr}</div></div>`;
+        }).join('');
+        if(e.note) body += `<div class="tl-history-sets" style="margin-top:6px;">"${escapeHtml(e.note)}"</div>`;
+      }
+      body += `<button class="tl-del" data-del="${e.id}">Delete entry</button>`;
+
+      return `<div class="tl-history-item">
+        <div class="tl-history-head" data-toggle="${e.id}">
+          <div class="l">${e.date} — ${dayLabel}</div>
+          <div class="r">wk ${e.week}</div>
+        </div>
+        <div class="tl-history-body" id="hb-${e.id}">${body}</div>
+      </div>`;
+    }).join('');
+
+    el.querySelectorAll('[data-toggle]').forEach(h=>{
+      h.addEventListener('click', ()=>{
+        const id = h.getAttribute('data-toggle');
+        document.getElementById('hb-'+id).classList.toggle('open');
+      });
+    });
+    el.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
+        const id = btn.getAttribute('data-del');
+        state.entries = state.entries.filter(e=>e.id!==id);
+        await persistEntries();
+        toast('Entry deleted');
+        renderStats(); renderChart(); renderHistory();
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ---------- Week stepper ----------
+  function renderWeek(){
+    document.getElementById('tl-week-display').textContent = state.week;
+    const phase = getPhase(state.week);
+    document.getElementById('tl-phase-text').innerHTML =
+      `Phase ${phase.n} — <b>${phase.label}</b>${phase.heavy ? '<span class="tl-heavy-tag">heavy week</span>':''}`;
+  }
+
+  document.getElementById('tl-week-down').addEventListener('click', ()=>{
+    state.week = Math.max(1, state.week-1);
+    renderWeek(); renderForm();
+  });
+  document.getElementById('tl-week-up').addEventListener('click', ()=>{
+    state.week = Math.min(12, state.week+1);
+    renderWeek(); renderForm();
+  });
+  document.getElementById('tl-save-btn').addEventListener('click', saveSession);
+  document.getElementById('tl-chart-select').addEventListener('change', (e)=>{
+    state.chartLift = e.target.value;
+    renderChart();
+  });
+  document.getElementById('tl-reset').addEventListener('click', async ()=>{
+    if(confirm('Clear all logged sessions? This cannot be undone.')){
+      state.entries = [];
+      await persistEntries();
+      toast('Log cleared');
+      renderStats(); renderChart(); renderHistory();
+    }
+  });
+
+  // ---------- Init ----------
+  (async function init(){
+    renderWeek();
+    renderTabs();
+    renderForm();
+    document.getElementById('tl-form-panel').innerHTML = '<div class="tl-empty">Loading your log…</div>';
+    await loadEntries();
+    renderForm();
+    renderStats();
+    renderChart();
+    renderHistory();
+  })();
+})();
+</script>
+</body>
+</html>
